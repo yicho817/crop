@@ -26,9 +26,10 @@ h, w = target_image.shape[:2]
 top_left = max_loc
 bottom_right = (top_left[0] + w, top_left[1] + h)
 
-# 確保範圍在原始圖片的邊界內
-top_left = (max(top_left[0], 0), max(top_left[1], 0))
-bottom_right = (min(bottom_right[0], original_image.shape[1]), min(bottom_right[1], original_image.shape[0]))
+# 在原始圖片上繪製匹配區域（用於檢查匹配是否正確）
+cv2.rectangle(original_image, top_left, bottom_right, (0, 255, 0), 2)
+cv2.imshow('Matching Area', original_image)
+cv2.waitKey(0)
 
 # 剪下對應區域
 cropped_image = original_image[top_left[1]:bottom_right[1], top_left[0]:bottom_right[0]]
