@@ -79,3 +79,23 @@ def load_images(self):
         q_img = QPixmap(QImage(image.data, width, height, bytes_per_line, QImage.Format_RGB888).rgbSwapped())
         self.imageLabel.setPixmap(q_img)
         self.imageLabel.adjustSize()
+
+
+
+def display_image(self, image):
+    # 將 OpenCV 圖片轉換為 QPixmap
+    height, width, channel = image.shape
+    bytes_per_line = 3 * width
+    q_img = QImage(image.data, width, height, bytes_per_line, QImage.Format_RGB888).rgbSwapped()
+    pixmap = QPixmap.fromImage(q_img)
+    
+    # 縮放圖片以適應 QLabel，但保持長寬比例
+    scaled_pixmap = pixmap.scaled(
+        self.imageLabel.size(), 
+        Qt.KeepAspectRatio, 
+        Qt.SmoothTransformation
+    )
+
+    # 將縮放後的圖片顯示在 QLabel 上
+    self.imageLabel.setPixmap(scaled_pixmap)
+
