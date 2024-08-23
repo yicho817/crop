@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QPushButton, QFileDialog, QLabel, QListWidget, QListWidgetItem, QProgressBar
 )
 from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtCore import Qt, QThread, pyqtSignal
+from PyQt5.QtCore import Qt, QThread, pyqtSignal, QSize
 
 class ImageProcessingThread(QThread):
     progress = pyqtSignal(int)
@@ -19,8 +19,7 @@ class ImageProcessingThread(QThread):
         processed_images = []
         total = len(self.images)
         for i, image_path in enumerate(self.images):
-            # 模擬處理過程
-            self.sleep(1)  # 假裝處理每張圖片需要1秒
+            self.sleep(1)  # 模擬處理過程
             processed_images.append(f"Processed {image_path} in {self.mode} mode")
             self.progress.emit(int((i + 1) / total * 100))
         self.result_ready.emit(processed_images)
@@ -39,6 +38,7 @@ class ImageGallery(QWidget):
 
         # Image list
         self.imageList = QListWidget()
+        self.imageList.setIconSize(QSize(128, 128))  # 設定縮圖大小
         self.imageList.setSelectionMode(QListWidget.MultiSelection)
         layout.addWidget(self.imageList)
 
