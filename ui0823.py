@@ -1,10 +1,11 @@
 import sys
 import os
 from PyQt5.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QPushButton, QFileDialog, QLabel, QListWidget, QListWidgetItem, QProgressBar
+    QApplication, QWidget, QVBoxLayout, QPushButton, QFileDialog, QLabel, QTableWidget, QTableWidgetItem, QProgressBar
 )
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QSize
+import cv2
 
 class ImageProcessingThread(QThread):
     progress = pyqtSignal(int)
@@ -36,16 +37,23 @@ class ImageGallery(QWidget):
 
         layout = QVBoxLayout()
 
-        # Image list
-        self.imageList = QListWidget()
-        self.imageList.setIconSize(QSize(128, 128))  # 設定縮圖大小
-        self.imageList.setSelectionMode(QListWidget.MultiSelection)
-        layout.addWidget(self.imageList)
+        # Image table
+        self.imageTable = QTableWidget(0, 2)  # 設置表格有2列
+        self.imageTable.setHorizontalHeaderLabels(["Image", "Filename"])
+        self.imageTable.setIconSize(QSize(128, 128))  # 設定縮圖大小
+        self.imageTable.setSelectionBehavior(QTableWidget.SelectRows)
+        self.imageTable.setSelectionMode(QTableWidget.MultiSelection)
+        layout.addWidget(self.imageTable)
 
         # Load images button
         loadBtn = QPushButton("Load Images")
         loadBtn.clicked.connect(self.load_images)
         layout.addWidget(loadBtn)
+
+        # Crop Image button
+        cropBtn = QPushButton("Crop Image")
+        cropBtn.clicked.connect(self.crop_image)
+        layout.addWidget(cropBtn)
 
         # Train button
         trainBtn = QPushButton("Send for Training")
@@ -70,13 +78,45 @@ class ImageGallery(QWidget):
     def load_images(self):
         folder = QFileDialog.getExistingDirectory(self, "Select Folder")
         if folder:
-            self.imageList.clear()
+            self.imageTable.setRowCount(0)  # 清空表格內容
             for file_name in os.listdir(folder):
                 if file_name.endswith(('.png', '.jpg', '.jpeg')):
                     file_path = os.path.join(folder, file_name)
-                    item = QListWidgetItem(QIcon(file_path), file_name)
-                    item.setData(Qt.UserRole, file_path)
-                    self.imageList.addItem(item)
+                    row_position = self.imageTable.rowCount()
+                    self.imageTable.insertRow(row_position)
+
+                    # 將圖片加到表格
+                    icon = QIcon(file_path)
+                    image_item = QTableWidgetItem(icon, "")
+                    image_item.setData(Qt.UserRole, file_path)
+                    self.imageTable.setItem(row_position, 0, image_item)
+
+                    # 加入檔名
+                    filename_item = QTableWidgetItem(file_name)
+                    self.imageTable.setItem(row_position, 1, filename_item)
+
+    def crop_image(self):
+        image_path, _ = QFileDialog.getOpenFileName(self, "Select Image", "", "Image Files (*.png *.jpg *.jpeg)")
+        if not image_path:
+            return
+
+        folder = os.path.dirname(image_path)
+        label_file = os.path.join(folder, "label.txt")
+        class_file = os.path.join(folder, "classes.txt")
+
+        if os.path.exists(label_file) and os.path.exists(class_file):
+            self.process_crop(image_path, label_file, class_file)
+        else:
+            self.resultLabel.setText("Label or class file not found.")
+
+    def process_crop(self, image_path, label_file, class_file):
+        image = cv2.imread(image_path)
+
+        with open(label_file, 'r') as lf, open(class_file, 'r') as cf:
+            labels = lf.readlines()
+            classes = cf.readlines()
+
+        self.resultLabel.setText(f"Cropped image from {image_path} using {label_file} and {class_file}")
 
     def send_for_training(self):
         selected_images = self.get_selected_images()
@@ -89,8 +129,12 @@ class ImageGallery(QWidget):
             self.process_images(selected_images, "inference")
 
     def get_selected_images(self):
-        selected_items = self.imageList.selectedItems()
-        return [item.data(Qt.UserRole) for item in selected_items]
+        selected_images = []
+        selected_rows = self.imageTable.selectionModel().selectedRows()
+        for row in selected_rows:
+            image_item = self.imageTable.item(row.row(), 0)
+            selected_images.append(image_item.data(Qt.UserRole))
+        return selected_images
 
     def process_images(self, images, mode):
         self.progressBar.setValue(0)
