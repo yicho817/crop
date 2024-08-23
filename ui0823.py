@@ -1,10 +1,29 @@
 import sys
 import os
 from PyQt5.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QPushButton, QFileDialog, QLabel, QListWidget, QListWidgetItem
+    QApplication, QWidget, QVBoxLayout, QPushButton, QFileDialog, QLabel, QListWidget, QListWidgetItem, QProgressBar
 )
 from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QThread, pyqtSignal
+
+class ImageProcessingThread(QThread):
+    progress = pyqtSignal(int)
+    result_ready = pyqtSignal(list)
+
+    def __init__(self, images, mode):
+        super().__init__()
+        self.images = images
+        self.mode = mode
+
+    def run(self):
+        processed_images = []
+        total = len(self.images)
+        for i, image_path in enumerate(self.images):
+            # 模擬處理過程
+            self.sleep(1)  # 假裝處理每張圖片需要1秒
+            processed_images.append(f"Processed {image_path} in {self.mode} mode")
+            self.progress.emit(int((i + 1) / total * 100))
+        self.result_ready.emit(processed_images)
 
 class ImageGallery(QWidget):
     def __init__(self):
@@ -38,6 +57,14 @@ class ImageGallery(QWidget):
         inferBtn.clicked.connect(self.send_for_inference)
         layout.addWidget(inferBtn)
 
+        # Progress bar
+        self.progressBar = QProgressBar()
+        layout.addWidget(self.progressBar)
+
+        # Result label
+        self.resultLabel = QLabel()
+        layout.addWidget(self.resultLabel)
+
         self.setLayout(layout)
 
     def load_images(self):
@@ -54,18 +81,31 @@ class ImageGallery(QWidget):
     def send_for_training(self):
         selected_images = self.get_selected_images()
         if selected_images:
-            print("Training on images:", selected_images)
-            # 在這裡處理訓練的邏輯
+            self.process_images(selected_images, "training")
 
     def send_for_inference(self):
         selected_images = self.get_selected_images()
         if selected_images:
-            print("Inferring on images:", selected_images)
-            # 在這裡處理推斷的邏輯
+            self.process_images(selected_images, "inference")
 
     def get_selected_images(self):
         selected_items = self.imageList.selectedItems()
         return [item.data(Qt.UserRole) for item in selected_items]
+
+    def process_images(self, images, mode):
+        self.progressBar.setValue(0)
+        self.resultLabel.clear()
+
+        self.thread = ImageProcessingThread(images, mode)
+        self.thread.progress.connect(self.update_progress)
+        self.thread.result_ready.connect(self.show_results)
+        self.thread.start()
+
+    def update_progress(self, value):
+        self.progressBar.setValue(value)
+
+    def show_results(self, results):
+        self.resultLabel.setText("\n".join(results))
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
