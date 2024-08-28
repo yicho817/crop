@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
     QFileDialog, QLabel, QListWidget, QListWidgetItem, QStackedWidget,
     QProgressBar, QTableWidget, QTableWidgetItem, QScrollArea,
-    QCheckBox, QGroupBox
+    QCheckBox, QGroupBox, QTextBrowser
 )
 from PyQt5.QtGui import QPixmap, QImage, QIcon
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QSize
@@ -118,15 +118,21 @@ class ImageGallery(QWidget):
         self.inferBtn.clicked.connect(self.send_for_inference)
         self.inferBtn.setDisabled(True)
 
+        # Result label
+        self.resultLabel = QTextBrowser()
 
+        # Progress bar
+        self.progressBar = QProgressBar()
 
         btn_w = 150
         btn_h = 50
         load_cropBtn.setFixedSize(btn_w,btn_h)
+        self.label_group.setFixedWidth(btn_w)
         self.cropBtn.setFixedSize(btn_w,btn_h)
         loadBtn.setFixedSize(btn_w,btn_h)
         self.trainBtn.setFixedSize(btn_w,btn_h)
         self.inferBtn.setFixedSize(btn_w,btn_h)
+        self.resultLabel.setFixedHeight(btn_w)
 
         right_layout.addWidget(load_cropBtn)
         right_layout.addWidget(self.label_group)
@@ -134,18 +140,13 @@ class ImageGallery(QWidget):
         right_layout.addWidget(loadBtn)
         right_layout.addWidget(self.trainBtn)
         right_layout.addWidget(self.inferBtn)
+
         right_layout.addStretch()
 
         top_layout.addLayout(right_layout)
         top_layout.addWidget(self.stackedWidget)
         main_layout.addLayout(top_layout)
-
-        # Progress bar
-        self.progressBar = QProgressBar()
         main_layout.addWidget(self.progressBar)
-
-        # Result label
-        self.resultLabel = QLabel()
         main_layout.addWidget(self.resultLabel)
 
         self.setLayout(main_layout)
@@ -156,8 +157,6 @@ class ImageGallery(QWidget):
         # label_name = r"20240520130236-P1516640-20-H-SPGT24139001205.txt"
         # classes_name = r"classes.txt"
 
-        # selected_images = self.get_selected_images()
-        # if not selected_images:
         self.stackedWidget.setCurrentWidget(self.imageLabel)
         image_path_new, _ = QFileDialog.getOpenFileName(self, "Select Image", "", "Image Files (*.png *.jpg *.jpeg)")
         if not image_path_new:
@@ -199,9 +198,9 @@ class ImageGallery(QWidget):
                     self.present_class_ids.add(class_id)
             self.update_label_checkboxes_class_id()
             self.cropBtn.setDisabled(False)
-            self.resultLabel.setText("Crop Image ready. Please select Label to crop")
+            self.resultLabel.append("Crop Image ready. Please select Label to crop")
         else:
-            self.resultLabel.setText("Label or Class file not found.")
+            self.resultLabel.append("Label or Class file not found.")
 
     def update_label_checkboxes_class_id(self):
         self.clear_checkboxes()
@@ -342,11 +341,13 @@ class ImageGallery(QWidget):
     def crop_images(self):
         # select_labels = self.get_select_label_yolo()
         selected_labels = self.get_select_label_from_class_id()
-        if not selected_labels:
-            self.resultLabel.setText("Please select at least one labels.")
-            return
-        self.resultLabel.setText("Start Crop")
 
+        # if not selected_labels:
+        #     self.resultLabel.append("Please select at least one labels.")
+        #     return
+
+        self.resultLabel.append("Start Crop")
+        QApplication.processEvents()
         # target_paths = glob.glob(os.path.join(self.image_folder_path, "*.jpg"))
 
         # output_folder_path = os.path.join(image_folder_path, "output")
@@ -374,14 +375,16 @@ class ImageGallery(QWidget):
             golden_pic_path = os.path.join(output_golden_path, f"{class_name}_{str(class_count[class_name])}.jpg")
             cv2.imwrite(golden_pic_path, golden_pic)
             print(f"Saved: {golden_pic_path}")
-            self.resultLabel.setText(f"Saved: {golden_pic_path}")
+            self.resultLabel.append(f"Saved: {golden_pic_path}")
+            QApplication.processEvents()
 
             # Crop Big sample
             for original_target_img, target_path in process_images_with_cv2(self.image_folder_path):
             # for target_path in target_paths:
                 target_pic = crop_p(original_target_img, yolo_line, scale=1.5)
                 print(f"Crop: {target_path}")
-                self.resultLabel.setText(f"Crop: {target_path}")
+                self.resultLabel.append(f"Crop: {target_path}")
+                QApplication.processEvents()
                 output_target_path = os.path.join(output_folder_path, class_name)
                 os.makedirs(output_target_path, exist_ok=True)
                 match_image = match_golden(output_target_path, golden_pic, target_pic)
@@ -391,9 +394,10 @@ class ImageGallery(QWidget):
                 cropped_image_name = os.path.join(output_target_path, f'{class_name}_{str(class_count[class_name])}_{img_name}_crop.jpg')
                 cv2.imwrite(cropped_image_name, match_image)
                 print(f"Saved: {cropped_image_name}")
-                self.resultLabel.setText(f"Saved: {cropped_image_name}")
+                self.resultLabel.append(f"Saved: {cropped_image_name}")
+                QApplication.processEvents()
 
-        self.resultLabel.setText("Crop Finish")
+        self.resultLabel.append("Crop Finish")
         folder = r"output"
         file_path = os.path.join(folder, self.class_name)
         self.update_image_table(file_path)
@@ -436,6 +440,7 @@ class ImageGallery(QWidget):
         self.imageTable.resizeRowsToContents()
         self.stackedWidget.setCurrentWidget(self.imageTable)
         self.trainBtn.setDisabled(False)
+        # self.imageTable.selectionMode(self.update_selected_images_display)
 
     def load_sample_images(self):
         folder = QFileDialog.getExistingDirectory(self, "Select Folder")
@@ -453,6 +458,15 @@ class ImageGallery(QWidget):
         if selected_images:
             self.process_images(selected_images, "inference")
         pass
+
+    def update_selected_images_display(self):
+        select_images = self.get_selected_images()
+        if select_images:
+            select_images_text = "\n".join([os.path.basename(img) for img in select_images])
+            self.resultLabel.setText(f"Selected Image:\n{select_images_text}")
+        else:
+            self.resultLabel.setText(f"No Selected Image")
+
 
     def get_selected_images(self):
         selected_items = self.imageTable.selectedItems()
@@ -481,7 +495,7 @@ class ImageGallery(QWidget):
         self.progressBar.setValue(value)
 
     def show_results(self, results):
-        self.resultLabel.setText("\n".join(results))
+        self.resultLabel.append("\n".join(results))
 
 if __name__ == '__main__':
 
