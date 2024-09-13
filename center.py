@@ -31,13 +31,14 @@ def upload_zip():
         shutil.rmtree(temp_dir)
 
 def few_shot_learning(directory):
-    # 實現few-shot learning的邏輯
-    pass
+    # 假設有個train.py腳本負責訓練模型
+    os.system(f"python train.py --data_dir {directory}")
 
 def convert_model(directory):
-    # 實現模型轉檔的邏輯
-    pass
+    # 假設有個convert.py腳本負責模型轉檔
+    os.system(f"python convert.py --model_dir {directory}")
 
 def deploy_model(directory):
-    # 實現模型部屬的邏輯
-    pass
+    # 假設有個deploy.py腳本負責模型部屬
+    os.system(f"python deploy.py --model_dir {directory}")
+curl -X POST http://127.0.0.1:5000/upload -F 'file=@path/to/your/file.zip'
