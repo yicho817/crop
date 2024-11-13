@@ -1,0 +1,83 @@
+dictionaries = [
+    # Intel 微架構
+    {"name": "MTL", "description": "Meteor Lake", "models": {"i9-13900": "125W", "i7-13700": "95W", "i5-13600": "65W"}},
+    {"name": "RPL", "description": "Raptor Lake", "models": {"i9-12900K": "125W", "i7-12700K": "95W", "i5-12600K": "65W"}},
+    {"name": "ADL", "description": "Alder Lake", "models": {"i9-12900": "125W", "i7-12700": "95W", "i5-12600": "65W"}},
+    {"name": "CML", "description": "Comet Lake", "models": {"i9-10900": "125W", "i7-10700": "95W", "i5-10600": "65W"}},
+    {"name": "ICL", "description": "Ice Lake", "models": {"i7-1065G7": "15W", "i5-1035G4": "15W"}},
+
+    # Intel 型號
+    {"name": "i7", "description": "Intel Core i7", "models": {"i7-13700": "95W", "i7-12700": "95W", "i7-1065G7": "15W"}},
+    {"name": "i5", "description": "Intel Core i5", "models": {"i5-13600": "65W", "i5-12600": "65W", "i5-10600": "65W"}},
+    {"name": "i9", "description": "Intel Core i9", "models": {"i9-13900": "125W", "i9-12900": "125W", "i9-10900": "125W"}}
+]
+dictionaries = [
+    # Intel 微架構
+    {"name": "MTL", "description": "Meteor Lake", "models": ["i9-13900", "i7-13700", "i5-13600"]},
+    {"name": "RPL", "description": "Raptor Lake", "models": ["i9-12900K", "i7-12700K", "i5-12600K"]},
+    {"name": "ADL", "description": "Alder Lake", "models": ["i9-12900", "i7-12700", "i5-12600"]},
+    {"name": "CML", "description": "Comet Lake", "models": ["i9-10900", "i7-10700", "i5-10600"]},
+    {"name": "ICL", "description": "Ice Lake", "models": ["i7-1065G7", "i5-1035G4"]},
+    
+    # Intel 型號
+    {"name": "i7", "description": "Intel Core i7", "models": ["i7-13700", "i7-12700", "i7-1065G7"]},
+    {"name": "i5", "description": "Intel Core i5", "models": ["i5-13600", "i5-12600", "i5-10600"]},
+    {"name": "i9", "description": "Intel Core i9", "models": ["i9-13900", "i9-12900", "i9-10900"]},
+    
+    # AMD 微架構
+    {"name": "Z1", "description": "Zen", "models": ["Ryzen 5 1600", "Ryzen 7 1800X"]},
+    {"name": "Z+", "description": "Zen+", "models": ["Ryzen 5 2600", "Ryzen 7 2700X"]},
+    {"name": "Z2", "description": "Zen 2", "models": ["Ryzen 5 3600", "Ryzen 7 3700X"]},
+    {"name": "Z3", "description": "Zen 3", "models": ["Ryzen 5 5600X", "Ryzen 7 5800X"]},
+    {"name": "Z4", "description": "Zen 4", "models": ["Ryzen 9 7950X", "Ryzen 7 7700X"]},
+    
+    # AMD 型號
+    {"name": "R5", "description": "Ryzen 5", "models": ["Ryzen 5 5600X", "Ryzen 5 3600"]},
+    {"name": "R7", "description": "Ryzen 7", "models": ["Ryzen 7 5800X", "Ryzen 7 3700X"]},
+    {"name": "R9", "description": "Ryzen 9", "models": ["Ryzen 9 7950X", "Ryzen 9 5900X"]}
+]
+dictionaries = [
+    # Intel 微架構
+    {"name": "MTL", "description": "Meteor Lake"},
+    {"name": "RPL", "description": "Raptor Lake"},
+    {"name": "ADL", "description": "Alder Lake"},
+    {"name": "CML", "description": "Comet Lake"},
+    {"name": "ICL", "description": "Ice Lake"},
+    
+    # Intel CPU 型號
+    {"name": "i7", "description": "Intel Core i7"},
+    {"name": "i5", "description": "Intel Core i5"},
+    {"name": "i9", "description": "Intel Core i9"},
+    
+    # AMD 微架構
+    {"name": "Z1", "description": "Zen"},
+    {"name": "Z+", "description": "Zen+"},
+    {"name": "Z2", "description": "Zen 2"},
+    {"name": "Z3", "description": "Zen 3"},
+    {"name": "Z4", "description": "Zen 4"},
+    
+    # AMD CPU 型號
+    {"name": "R5", "description": "Ryzen 5"},
+    {"name": "R7", "description": "Ryzen 7"},
+    {"name": "R9", "description": "Ryzen 9"}
+]
+dictionaries = [
+    {"name": "Z1", "description": "Zen"},
+    {"name": "Z+", "description": "Zen+"},
+    {"name": "Z2", "description": "Zen 2"},
+    {"name": "Z3", "description": "Zen 3"},
+    {"name": "Z4", "description": "Zen 4"},
+    {"name": "EXC", "description": "Excavator"},
+    {"name": "BD", "description": "Bulldozer"},
+    {"name": "PLD", "description": "Piledriver"},
+]
+dictionaries = [
+    {"name": "Z1", "description": "Zen"},
+    {"name": "Z+", "description": "Zen+"},
+    {"name": "Z2", "description": "Zen 2"},
+    {"name": "Z3", "description": "Zen 3"},
+    {"name": "Z4", "description": "Zen 4"},
+    {"name": "EXC", "description": "Excavator"},
+    {"name": "BD", "description": "Bulldozer"},
+    {"name": "PLD", "description": "Piledriver"},
+]
